@@ -7,6 +7,7 @@ const ToastContext = React.createContext({
   toasts: initialToasts,
   addToasts: (id) => {},
   removeToast: ({ content, variant }) => {},
+  resetToasts: () => {},
 });
 
 export function useToasts() {
@@ -28,6 +29,10 @@ function toastsReducer(toasts, { type, payload }) {
           throw new Error("cannot remove element with invalid id");
         }
         draft.splice(placement, 1);
+        break;
+      }
+      case "reset": {
+        draft.length = 0;
         break;
       }
       default: {
@@ -56,13 +61,32 @@ function ToastsProvider({ children }) {
     dispatchToasts({ type: "remove", payload: { id } });
   }, []);
 
+  const resetToasts = React.useCallback(() => {
+    dispatchToasts({ type: "reset" });
+  }, []);
+
+  React.useEffect(() => {
+    const onKeyPress = (event) => {
+      if (event.key === "Escape") {
+        resetToasts();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", onKeyPress);
+    };
+  }, [resetToasts]);
+
   const value = React.useMemo(() => {
     return {
       toasts,
       addToast,
       removeToast,
+      resetToasts,
     };
-  }, [toasts, addToast, removeToast]);
+  }, [toasts, addToast, removeToast, resetToasts]);
 
   return (
     <ToastContext.Provider value={value}>{children}</ToastContext.Provider>
