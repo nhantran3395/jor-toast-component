@@ -1,9 +1,13 @@
 import React from "react";
 
 import Toast from "../Toast";
+import { useToasts } from "../../providers/ToastsProvider";
+
 import styles from "./ToastShelf.module.css";
 
-function ToastShelf({ toasts = [], clearToast }) {
+function ToastShelf() {
+  const { toasts, removeToast } = useToasts();
+
   return (
     <ol className={styles.wrapper}>
       {toasts.map(({ variant, content, id }) => (
@@ -12,7 +16,7 @@ function ToastShelf({ toasts = [], clearToast }) {
             variant={variant}
             content={content}
             id={id}
-            onClear={clearToast}
+            onClear={removeToast}
           />
         </li>
       ))}

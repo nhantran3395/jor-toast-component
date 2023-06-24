@@ -1,36 +1,12 @@
 import React from "react";
-import { produce } from "immer";
 
 import Button from "../Button";
 import ToastShelf from "../ToastShelf";
+import { useToasts } from "../../providers/ToastsProvider";
 
 import styles from "./ToastPlayground.module.css";
 
 const VARIANT_OPTIONS = ["notice", "warning", "success", "error"];
-
-const initialToasts = [];
-
-function toastsReducer(toasts, { type, payload }) {
-  return produce(toasts, (draft) => {
-    switch (type) {
-      case "add": {
-        draft.push({ ...payload, id: crypto.randomUUID() });
-        break;
-      }
-      case "remove": {
-        const placement = draft.findIndex((toast) => toast.id === payload.id);
-        if (placement === -1) {
-          throw new Error("cannot remove element with invalid id");
-        }
-        draft.splice(placement, 1);
-        break;
-      }
-      default: {
-        throw new Error("action type is invalid");
-      }
-    }
-  });
-}
 
 const initialMessage = "";
 const initialVariant = "notice";
@@ -38,14 +14,12 @@ const initialVariant = "notice";
 function ToastPlayground() {
   const [message, setMessage] = React.useState(initialMessage);
   const [variant, setVariant] = React.useState(initialVariant);
-  const [toasts, dispatchToasts] = React.useReducer(
-    toastsReducer,
-    initialToasts
-  );
 
   const onMessageChange = (event) => setMessage(event.target.value);
 
   const onVariantChange = (event) => setVariant(event.target.value);
+
+  const { addToast } = useToasts();
 
   const resetInput = () => {
     setMessage(initialMessage);
@@ -55,12 +29,8 @@ function ToastPlayground() {
   const onSubmitToast = (event) => {
     event.preventDefault();
     resetInput();
-    dispatchToasts({ type: "add", payload: { content: message, variant } });
+    addToast({ content: message, variant });
   };
-
-  const removeToast = React.useCallback((id) => {
-    dispatchToasts({ type: "remove", payload: { id } });
-  }, []);
 
   return (
     <form className={styles.wrapper}>
@@ -69,7 +39,7 @@ function ToastPlayground() {
         <h1>Toast Playground</h1>
       </header>
 
-      <ToastShelf toasts={toasts} clearToast={removeToast} />
+      <ToastShelf />
 
       <div className={styles.controlsWrapper}>
         <div className={styles.row}>
