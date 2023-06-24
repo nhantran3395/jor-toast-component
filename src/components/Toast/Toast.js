@@ -18,14 +18,17 @@ const ICONS_BY_VARIANT = {
   error: AlertOctagon,
 };
 
-function Toast({ content, variant, onClear }) {
+function Toast({ content, variant, id, onClear }) {
   const Icon = ICONS_BY_VARIANT[variant];
+  const clearToast = () => onClear(id);
+
+  console.log("toast id: ", { id });
 
   return (
     <div className={`${styles.toast} ${styles[variant]}`}>
       <div className={styles.iconContainer}>{<Icon size={24} />}</div>
       <p className={styles.content}>{content}</p>
-      <button className={styles.closeButton} onClick={onClear}>
+      <button className={styles.closeButton} onClick={clearToast}>
         <X size={24} />
         <VisuallyHidden>Dismiss message</VisuallyHidden>
       </button>
@@ -33,4 +36,4 @@ function Toast({ content, variant, onClear }) {
   );
 }
 
-export default Toast;
+export default React.memo(Toast);

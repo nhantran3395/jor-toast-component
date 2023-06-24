@@ -1,32 +1,75 @@
 import React from "react";
+import { produce } from "immer";
 
 import Button from "../Button";
-import Toast from "../Toast";
+import ToastShelf from "../ToastShelf";
 
 import styles from "./ToastPlayground.module.css";
 
 const VARIANT_OPTIONS = ["notice", "warning", "success", "error"];
 
+const initialToasts = [];
+
+function toastsReducer(toasts, { type, payload }) {
+  return produce(toasts, (draft) => {
+    switch (type) {
+      case "add": {
+        draft.push({ ...payload, id: crypto.randomUUID() });
+        break;
+      }
+      case "remove": {
+        const placement = draft.findIndex((toast) => toast.id === payload.id);
+        if (placement === 1) {
+          throw new Error("cannot remove element with invalid valid");
+        }
+        draft.splice(placement, 1);
+        break;
+      }
+      default: {
+        throw new Error("action type is invalid");
+      }
+    }
+  });
+}
+
+const initialMessage = "";
+const initialVariant = "notice";
+
 function ToastPlayground() {
-  const [message, setMessage] = React.useState("");
-  const [variant, setVariant] = React.useState("notice");
-  const [showToast, setShowToast] = React.useState(false);
+  const [message, setMessage] = React.useState(initialMessage);
+  const [variant, setVariant] = React.useState(initialVariant);
+  const [toasts, dispatchToasts] = React.useReducer(
+    toastsReducer,
+    initialToasts
+  );
 
   const onMessageChange = (event) => setMessage(event.target.value);
+
   const onVariantChange = (event) => setVariant(event.target.value);
-  const onSubmitToast = () => setShowToast((prev) => !prev);
-  const removeToast = () => setShowToast(false);
+
+  const resetInput = () => {
+    setMessage(initialMessage);
+    setVariant(initialVariant);
+  };
+
+  const onSubmitToast = (event) => {
+    event.preventDefault();
+    resetInput();
+    dispatchToasts({ type: "add", payload: { content: message, variant } });
+  };
+
+  const removeToast = React.useCallback((id) => {
+    dispatchToasts({ type: "remove", payload: { id } });
+  }, []);
 
   return (
-    <div className={styles.wrapper}>
+    <form className={styles.wrapper}>
       <header>
         <img alt="Cute toast mascot" src="/toast.png" />
         <h1>Toast Playground</h1>
       </header>
 
-      {showToast ? (
-        <Toast content={message} variant={variant} onClear={removeToast} />
-      ) : null}
+      <ToastShelf toasts={toasts} clearToast={removeToast} />
 
       <div className={styles.controlsWrapper}>
         <div className={styles.row}>
@@ -73,7 +116,7 @@ function ToastPlayground() {
           </div>
         </div>
       </div>
-    </div>
+    </form>
   );
 }
 
