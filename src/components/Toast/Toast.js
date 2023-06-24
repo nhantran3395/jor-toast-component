@@ -22,8 +22,6 @@ function Toast({ content, variant, id, onClear }) {
   const Icon = ICONS_BY_VARIANT[variant];
   const clearToast = () => onClear(id);
 
-  console.log("toast id: ", { id });
-
   return (
     <div className={`${styles.toast} ${styles[variant]}`}>
       <div className={styles.iconContainer}>{<Icon size={24} />}</div>
