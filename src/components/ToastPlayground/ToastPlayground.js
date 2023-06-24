@@ -19,8 +19,8 @@ function toastsReducer(toasts, { type, payload }) {
       }
       case "remove": {
         const placement = draft.findIndex((toast) => toast.id === payload.id);
-        if (placement === 1) {
-          throw new Error("cannot remove element with invalid valid");
+        if (placement === -1) {
+          throw new Error("cannot remove element with invalid id");
         }
         draft.splice(placement, 1);
         break;
