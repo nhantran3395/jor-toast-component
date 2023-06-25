@@ -3,12 +3,7 @@ import { produce } from "immer";
 
 const initialToasts = [];
 
-const ToastContext = React.createContext({
-  toasts: initialToasts,
-  addToasts: (id) => {},
-  removeToast: ({ content, variant }) => {},
-  resetToasts: () => {},
-});
+const ToastContext = React.createContext();
 
 export function useToasts() {
   const context = React.useContext(ToastContext);
