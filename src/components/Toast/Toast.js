@@ -26,7 +26,11 @@ function Toast({ content, variant, id, onClear }) {
     <div className={`${styles.toast} ${styles[variant]}`}>
       <div className={styles.iconContainer}>{<Icon size={24} />}</div>
       <p className={styles.content}>{content}</p>
-      <button className={styles.closeButton} onClick={clearToast}>
+      <button
+        className={styles.closeButton}
+        onClick={clearToast}
+        data-testid={`remove-toast-${variant}`}
+      >
         <X size={24} />
         <VisuallyHidden>Dismiss message</VisuallyHidden>
       </button>
